@@ -1,6 +1,6 @@
-# gdwcalc_go
+# gdw_go
 
-A port of my [GDWCalc](https://github.com/dougthor42/GDWCalc) project from
+A port of my [gdw](https://github.com/dougthor42/gdw) project from
 Python to Go.
 
 This is mainly for me to get a feel for Go and see if I like it or not.
@@ -41,7 +41,7 @@ What we're interested in here is 2-fold:
 $ tree
 .
 ├── cmd                         # application entry points. Dir name matches binary
-│   └── gdwcalc
+│   └── gdw
 │       ├── main.go
 │       └── main_test.go
 ├── LICENSE
@@ -50,11 +50,11 @@ $ tree
 │   │                           # no raw .go files in this pkg folder, and
 │   │                           # instead everything's put into subfolders.
 │   │
-│   └── gdwcalc                 # Subfolder for a package
+│   └── gdw                 # Subfolder for a package
 │       │
-│       ├── gdwcalc.go          # At least one file, with the same name.
+│       ├── gdw.go          # At least one file, with the same name.
 │       │                       # Is this a requirement?
-│       └── gdwcalc_test.go
+│       └── gdw_test.go
 └── README.md
 ```
 
@@ -69,13 +69,13 @@ module.
 This creates a `go.mod` file in the current directory
 
 ```
-go mod init github.com/dougthor42/gdwcalc_go
+go mod init github.com/dougthor42/gdw_go
 ```
 
 If you already have a `.go` file with `package main`, then you can now run
 
 ```
-go run cmd/gdwcalc/main.go
+go run cmd/gdw/main.go
 ```
 
 
@@ -97,15 +97,15 @@ counterparts.
 ## Other notes, unsorted.
 
 It seems like, to run a package (something in the pkg dir), you need to CD
-into that dir. You can't just say `go test pkg/gdwcalc/gdwcalc_test.go`.
+into that dir. You can't just say `go test pkg/gdw/gdw_test.go`.
 
 https://blog.golang.org/using-go-modules
 
 When importing stuff from `pkg`, do this:
 
 ```
-import "<module>/pkg/gdwcalc"
-gdwcalc.Hello()
+import "<module>/pkg/gdw"
+gdw.Hello()
 ```
 
 Where `<module>` is what you put when you ran `go mod init`
