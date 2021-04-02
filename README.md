@@ -19,7 +19,7 @@ This is mainly for me to get a feel for Go and see if I like it or not.
 
 ```shell
 # Remove any existing version of Go
-rm -rf /usr/local/go
+sudo rm -rf /usr/local/go
 # Download the archive and extract it, creating a tree at /usr/local/go
 wget -c https://golang.org/dl/go1.16.2.linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local
 # Add Go to $PATH
@@ -44,17 +44,21 @@ $ tree
 │   └── gdw
 │       ├── main.go
 │       └── main_test.go
-├── LICENSE
-├── pkg                         # public consumable code
+├── internal                    # Private application and libray code
+│   └── gdw
+│       ├── gwd.go
+│       └── gdw_test.go
+├── pkg                         # public library code
 │   │                           # Seems like the consensus is that there are
 │   │                           # no raw .go files in this pkg folder, and
 │   │                           # instead everything's put into subfolders.
 │   │
-│   └── gdw                 # Subfolder for a package
+│   └── gdw                     # Subfolder for a package
 │       │
-│       ├── gdw.go          # At least one file, with the same name.
+│       ├── gdw.go              # At least one file, with the same name.
 │       │                       # Is this a requirement?
 │       └── gdw_test.go
+├── LICENSE
 └── README.md
 ```
 
@@ -110,6 +114,20 @@ gdw.Hello()
 
 Where `<module>` is what you put when you ran `go mod init`
 
-Functions names are MixedCaps. Variable names are mixedCaps.
-
 https://medium.com/@pliutau/table-driven-tests-in-go-5d7e230681da
+
+
+### Naming
+
++ https://blog.golang.org/package-names
++ https://talks.golang.org/2014/names.slide#1
++ https://golang.org/doc/effective_go#names
+
+
+Use `MixedCaps` or `mixedCaps`, depending on if the item needs to be visible.
+
+> the visibility of a name outside a package is determined by whether its
+first character is upper case
+
+Good package names are short and clear. They are lower case, with no
+`under_scores` or `mixedCaps`. They are often simple nouns.
