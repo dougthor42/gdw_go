@@ -1,4 +1,4 @@
-package gdwcalc
+package gdw
 
 import (
 	"C"
