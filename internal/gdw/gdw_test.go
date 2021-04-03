@@ -10,13 +10,6 @@ import (
 
 const tolerance = 0.00001
 
-func TestHello(t *testing.T) {
-	want := "Hello World"
-	if got := Hello(); got != want {
-		t.Errorf("Hello() = %q, want %q", got, want)
-	}
-}
-
 func TestFlatLocation(t *testing.T) {
 	tables := []struct {
 		diameter float64
@@ -94,6 +87,59 @@ func TestMaxDistSqrd(t *testing.T) {
 			got := MaxDistSqrd(tt.center, tt.size)
 			if !cmp.Equal(got, tt.want, opt) {
 				t.Errorf("Got %f, wanted %f.", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestExclusionRadSqrd(t *testing.T) {
+	tables := []struct {
+		dia  float64
+		excl float64
+		want float64
+	}{
+		{150, 5, 4900},
+	}
+
+	// Taken from the docs https://pkg.go.dev/github.com/google/go-cmp/cmp#Equal
+	// with help from https://dev.to/juliaferraioli/testing-in-go-testing-floating-point-numbers-4i0a
+	// TODO: How to make this DRY?
+	opt := cmp.Comparer(func(x, y float64) bool {
+		delta := math.Abs(x - y)
+		mean := math.Abs(x+y) / 2.0
+		if math.IsNaN(delta / mean) {
+			return true
+		}
+		return (delta / mean) < tolerance
+	})
+
+	for _, tt := range tables {
+		testName := "foo"
+		t.Run(testName, func(t *testing.T) {
+			got := ExclusionRadSqrd(tt.dia, tt.excl)
+			if !cmp.Equal(got, tt.want, opt) {
+				t.Errorf("Got %f, wanted %f.", got, tt.want)
+			}
+		})
+	}
+}
+
+
+func TestDieState(t *testing.T) {
+	tables := []struct {
+		w Wafer
+		g Grid
+		want State
+	}{
+		{Wafer{}, Grid{}, StateOffWafer},
+	}
+
+	for _, tt := range tables {
+		testName := "foo"
+		t.Run(testName, func(t *testing.T) {
+			got := DieState(tt.w, tt.g)
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("Got %q, wanted %q.", got, tt.want)
 			}
 		})
 	}
