@@ -124,13 +124,15 @@ func TestExclusionRadSqrd(t *testing.T) {
 	}
 }
 
+var DummyWafer Wafer = Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}
+
 func TestDieState(t *testing.T) {
 	tables := []struct {
 		w    Wafer
 		g    Grid
 		want State
 	}{
-		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{21, 17}, StateOffWafer},
+		{DummyWafer, Grid{21, 17}, StateOffWafer},
 		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{30, 30}, StateProbe},
 		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{28, 43}, StateFlatExclusion},
 		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{31, 44}, StateFlat},
