@@ -14,15 +14,15 @@ var FlatLengths = map[float64]float64{
 	150: 57.5,
 }
 
-type State int
+type State string
 
 const (
-	StateOffWafer      State = iota
-	StateFlat          State = iota
-	StateExclusion     State = iota
-	StateFlatExclusion State = iota
-	StateScribe        State = iota
-	StateProbe         State = iota
+	StateOffWafer      State = "offWafer"
+	StateFlat          State = "flat"
+	StateExclusion     State = "excl"
+	StateFlatExclusion State = "flatExcl"
+	StateScribe        State = "scribe"
+	StateProbe         State = "probe"
 )
 
 type Offset string
@@ -141,7 +141,7 @@ func DieState(w Wafer, grid Grid) State {
 
 	// TODO: Can this be replaced with `switch`? I'm not sure, because
 	// each case is a different check.
-	if dist < math.Pow(w.Radius(), 2) {
+	if dist > math.Pow(w.Radius(), 2) {
 		return StateOffWafer
 	}
 	if lowerLeftY < FlatLocation(w.dia) {
