@@ -95,7 +95,7 @@ https://www.digitalocean.com/community/tutorials/how-to-write-unit-tests-in-go-u
 It seems like the general consensus is that test files go next to their
 counterparts.
 
-
+CD into the diretory of interest and run `go test`.
 
 
 ## Other notes, unsorted.
