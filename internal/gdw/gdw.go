@@ -25,6 +25,13 @@ const (
 	StateProbe         State = iota
 )
 
+type Offset string
+
+const (
+	OffsetOdd  Offset = "odd"
+	OffsetEven Offset = "even"
+)
+
 type Grid struct {
 	X, Y int
 }
@@ -53,7 +60,7 @@ type Size struct {
 	X, Y float64
 }
 
-// So Go doesn't have nullable types. In order to make something "null",
+// So, Go doesn't have nullable types. In order to make something "null",
 // especially within a struct, use a pointer to a type.
 // https://stackoverflow.com/a/51998383/1354930
 type Wafer struct {
@@ -63,6 +70,10 @@ type Wafer struct {
 	exclusion     float64
 	flatExclusion float64
 	scribeY       float64
+}
+
+func (w Wafer) Radius() float64 {
+	return w.dia / 2.0
 }
 
 // Exclusion Radius, squared.
@@ -82,11 +93,10 @@ func FlatLocation(dia float64) float64 {
 		flatY = -math.Sqrt(math.Pow(dia/2, 2) - math.Pow(val*0.5, 2))
 	}
 	return flatY
-
 }
 
 // Calculate the distance to the furthest corner of a rectangle, squared.
-func MaxDistSqrd(center, size Coord) float64 {
+func MaxDistSqrd(center Coord, size Size) float64 {
 	halfX := size.X / 2.0
 	halfY := size.Y / 2.0
 
@@ -103,26 +113,47 @@ func MaxDistSqrd(center, size Coord) float64 {
 	return dist
 }
 
+// Calculate how many die grids will cover the wafer.
+// `dist` should be the X or Y die size.
+func MaxGrid(dia float64, dist float64) int {
+	return 2 * int(math.Ceil(dia/dist))
+}
+
+// Calculate the grid centerpoint.
+func CenterGrid(maxGrid int, offset float64) float64 {
+	return float64(maxGrid)/2.0 + offset
+}
+
 // Calculate the die state (on wafer, on edge, off wafer, etc.)
 func DieState(w Wafer, grid Grid) State {
 	// Calulate the die's center coordinates.
-	//w.dieSize.X * grid.X - w.
+	dieCenterX := w.dieSize.X * (float64(grid.X) - CenterGrid(MaxGrid(w.dia, w.dieSize.X), w.offset.X))
+	// Note: we have to reverse the Y coord (as pos. Y is down)
+	dieCenterY := w.dieSize.Y * (CenterGrid(MaxGrid(w.dia, w.dieSize.Y), w.offset.Y) - float64(grid.Y))
+
+	// Find the die's furthest point.
+	center := Coord{dieCenterX, dieCenterY}
+	dist := MaxDistSqrd(center, w.dieSize)
+
+	// Determine the die's origin (lower-left corner).
+	// This should be adjusted based on the plotting lib used.
+	lowerLeftY := dieCenterY - (w.dieSize.Y / 2.0)
 
 	// TODO: Can this be replaced with `switch`? I'm not sure, because
 	// each case is a different check.
-	if 1<0{
+	if dist < math.Pow(w.Radius(), 2) {
 		return StateOffWafer
 	}
-	if 1<0{
+	if lowerLeftY < FlatLocation(w.dia) {
 		return StateFlat
 	}
-	if 1<0 {
+	if dist > ExclusionRadSqrd(w.dia, w.exclusion) {
 		return StateExclusion
 	}
-	if 1<0 {
+	if lowerLeftY < (FlatLocation(w.dia) + w.flatExclusion) {
 		return StateFlatExclusion
 	}
-	if 1<0 {
+	if 1 < 0 {
 		return StateScribe
 	}
 
