@@ -50,23 +50,23 @@ func TestFlatLocation(t *testing.T) {
 func TestMaxDistSqrd(t *testing.T) {
 	tables := []struct {
 		center Coord
-		size   Coord
+		size   Size
 		want   float64
 	}{
-		{Coord{0, 0}, Coord{2, 2}, 2},
-		{Coord{0, 0}, Coord{6, 8}, 25},
-		{Coord{0, 0}, Coord{2, 36}, 325},
-		{Coord{0, 0}, Coord{0, 0}, 0},
-		{Coord{0.5, 0.5}, Coord{1, 1}, 2},
-		{Coord{0, 0}, Coord{3.14, 2.718}, 4.311781},
-		{Coord{0, -10}, Coord{3.14, 2.718}, 131.491781},
-		{Coord{-10, 0}, Coord{3.14, 2.718}, 135.711781},
-		{Coord{-10, -10}, Coord{3.14, 2.718}, 262.891781},
-		{Coord{0, 10}, Coord{3.14, 2.718}, 131.491781},
-		{Coord{10, 0}, Coord{3.14, 2.718}, 135.711781},
-		{Coord{10, 10}, Coord{3.14, 2.718}, 262.891781},
-		{Coord{100000, 100000}, Coord{2, 2}, 20000400002},
-		{Coord{1000, 0}, Coord{100, 0.00001}, 1102500},
+		{Coord{0, 0}, Size{2, 2}, 2},
+		{Coord{0, 0}, Size{6, 8}, 25},
+		{Coord{0, 0}, Size{2, 36}, 325},
+		{Coord{0, 0}, Size{0, 0}, 0},
+		{Coord{0.5, 0.5}, Size{1, 1}, 2},
+		{Coord{0, 0}, Size{3.14, 2.718}, 4.311781},
+		{Coord{0, -10}, Size{3.14, 2.718}, 131.491781},
+		{Coord{-10, 0}, Size{3.14, 2.718}, 135.711781},
+		{Coord{-10, -10}, Size{3.14, 2.718}, 262.891781},
+		{Coord{0, 10}, Size{3.14, 2.718}, 131.491781},
+		{Coord{10, 0}, Size{3.14, 2.718}, 135.711781},
+		{Coord{10, 10}, Size{3.14, 2.718}, 262.891781},
+		{Coord{100000, 100000}, Size{2, 2}, 20000400002},
+		{Coord{1000, 0}, Size{100, 0.00001}, 1102500},
 	}
 
 	// Taken from the docs https://pkg.go.dev/github.com/google/go-cmp/cmp#Equal
@@ -124,14 +124,17 @@ func TestExclusionRadSqrd(t *testing.T) {
 	}
 }
 
-
 func TestDieState(t *testing.T) {
 	tables := []struct {
-		w Wafer
-		g Grid
+		w    Wafer
+		g    Grid
 		want State
 	}{
-		{Wafer{}, Grid{}, StateOffWafer},
+		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{21, 17}, StateOffWafer},
+		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{30, 30}, StateProbe},
+		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{28, 43}, StateFlatExclusion},
+		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{31, 44}, StateFlat},
+		{Wafer{Size{5, 5}, Coord{0, 0}, 150, 4.5, 4.5, 70.2}, Grid{40, 21}, StateExclusion},
 	}
 
 	for _, tt := range tables {
@@ -140,6 +143,49 @@ func TestDieState(t *testing.T) {
 			got := DieState(tt.w, tt.g)
 			if !cmp.Equal(got, tt.want) {
 				t.Errorf("Got %q, wanted %q.", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMaxGrid(t *testing.T) {
+	tables := []struct {
+		dia, dist float64
+		want      int
+	}{
+		{0, 0, 0},
+		{50, 50, 2},
+		{50, 10, 10},
+	}
+
+	for _, tt := range tables {
+		testName := "foo"
+		t.Run(testName, func(t *testing.T) {
+			got := MaxGrid(tt.dia, tt.dist)
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("Got %d, wanted %d", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCenterGrid(t *testing.T) {
+	tables := []struct {
+		maxGrid int
+		offset  float64
+		want    float64
+	}{
+		{0, 0, 0},
+		{50, 50, 75},
+		{50, 10, 35},
+	}
+
+	for _, tt := range tables {
+		testName := "foo"
+		t.Run(testName, func(t *testing.T) {
+			got := CenterGrid(tt.maxGrid, tt.offset)
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("Got %f, wanted %f", got, tt.want)
 			}
 		})
 	}
