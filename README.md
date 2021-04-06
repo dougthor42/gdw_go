@@ -97,6 +97,13 @@ counterparts.
 
 CD into the diretory of interest and run `go test`.
 
+To get coverage:
+
+```
+go test -cover=cover.out
+go tool cover -html=cover.out -o coverage.html
+```
+
 
 ## Other notes, unsorted.
 
