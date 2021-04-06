@@ -192,3 +192,50 @@ func TestCenterGrid(t *testing.T) {
 		})
 	}
 }
+
+func TestGrossDiePerWafer(t *testing.T) {
+	tables := []struct {
+		name            string
+		size            Size
+		dia             int
+		offsetXY        OffsetXY
+		exclusion       float64
+		scribeExclusion float64
+		want            int
+	}{
+		{"ints", Size{5, 5}, 150, OffsetXY{OffsetEven, OffsetEven}, 5, 5, 546},
+		{"floats", Size{5.0, 5.0}, 150, OffsetXY{OffsetEven, OffsetEven}, 5, 5, 546},
+		{"t01", Size{3.34, 3.16}, 100, OffsetXY{OffsetEven, OffsetEven}, 5, 5, 548},
+		{"t02-1", Size{2.43, 3.30}, 150, OffsetXY{OffsetEven, OffsetOdd}, 5, 4.5, 1814},
+		{"t02-2", Size{2.43, 3.30}, 150, OffsetXY{OffsetEven, OffsetEven}, 5, 4.5, 1794},
+		{"t02-3", Size{2.43, 3.30}, 150, OffsetXY{OffsetOdd, OffsetOdd}, 5, 4.5, 1800},
+		{"t02-4", Size{3.34, 3.16}, 150, OffsetXY{OffsetOdd, OffsetEven}, 5, 4.5, 1804},
+		{"t03", Size{4.34, 6.44}, 150, OffsetXY{OffsetEven, OffsetEven}, 5, 5, 484},
+		{"t04", Size{1, 1}, 150, OffsetXY{OffsetEven, OffsetEven}, 5, 5, 14902},
+		{"t05", Size{1, 1}, 200, OffsetXY{OffsetOdd, OffsetEven}, 5, 15, 27435},
+		// {"t06", Size{2.9, 3.3}, 150, -1.65, 2.95, 5, 4.5, 1529},
+		// {"t07", Size{2.69, 1.65}, 150, 1.345, 2.1, 5, 4.5, 3346},
+		// {"t08", Size{4.4, 5.02}, 150, 0, -0.2, 5, 4.5, 648},
+	}
+
+	for _, tt := range tables {
+		testName := tt.name
+		t.Run(testName, func(t *testing.T) {
+			dieList := GrossDiePerWafer(tt.size, tt.dia, tt.offsetXY, tt.exclusion, tt.scribeExclusion)
+
+			// This test only verifies how many Probed die are
+			// calculated.
+			got := 0
+			for _, d := range dieList {
+				if d.state == StateProbe {
+					got += 1
+				}
+			}
+
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("Got %d, wanted %d", got, tt.want)
+			}
+
+		})
+	}
+}

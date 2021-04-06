@@ -32,6 +32,10 @@ const (
 	OffsetEven Offset = "even"
 )
 
+type OffsetXY struct {
+	OffsetX, OffsetY Offset
+}
+
 type Grid struct {
 	X, Y int
 }
@@ -74,6 +78,12 @@ type Wafer struct {
 
 func (w Wafer) Radius() float64 {
 	return w.dia / 2.0
+}
+
+type Die struct {
+	grid  Grid
+	coord Coord
+	state State
 }
 
 // Exclusion Radius, squared.
@@ -160,3 +170,42 @@ func DieState(w Wafer, grid Grid) State {
 	// It passed all the checks, so it's within the probing region.
 	return StateProbe
 }
+
+// gdw
+// Calculate gross die per Wafer
+func GrossDiePerWafer(size Size, dia int, offsetXY OffsetXY, excl float64, flatExcl float64) []Die {
+
+	north_limit := float64(dia)
+
+	// offsetXValue := 0.0
+	// offsetYValue := 0.0
+	// // "Even" offsets the die center by 1/2 the die size.
+	// if offsetX == OffsetEven {
+	// offsetXValue = 0.5
+	// }
+	// if offsetY == OffsetEven {
+	// offsetYValue = 0.5
+	// }
+
+	w := Wafer{size, Coord{0, 0}, float64(dia), excl, flatExcl, north_limit}
+
+	maxGridX := MaxGrid(float64(dia), size.X)
+	maxGridY := MaxGrid(float64(dia), size.Y)
+
+	dieList := []Die{}
+	for x := 1; x <= maxGridX; x++ {
+		for y := 1; y <= maxGridY; y++ {
+			state := DieState(w, Grid{x, y})
+			if state == StateOffWafer {
+				continue
+			}
+			// append grid points
+			dieList = append(dieList, Die{Grid{0, 0}, Coord{1, 1}, state})
+		}
+	}
+	return dieList
+}
+
+// maxGDW
+
+// gen_mask_file
